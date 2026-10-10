@@ -1,0 +1,47 @@
+{
+  "info": {
+    "name": "CareerHub API",
+    "description": "API examples use the response envelope data field. Register/login first, then paste data.token into the token collection variable.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api" },
+    { "key": "token", "value": "" },
+    { "key": "applicationId", "value": "" },
+    { "key": "interviewId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        { "name": "Register", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Alex Candidate\",\n  \"email\": \"alex@example.test\",\n  \"password\": \"choose-a-long-password\",\n  \"college\": \"Northstar University\",\n  \"degree\": \"BSc Computer Science\",\n  \"graduationYear\": 2027\n}" }, "url": "{{baseUrl}}/auth/register" } },
+        { "name": "Login", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"alex@example.test\",\n  \"password\": \"choose-a-long-password\"\n}" }, "url": "{{baseUrl}}/auth/login" } }
+      ]
+    },
+    {
+      "name": "Profile and applications",
+      "item": [
+        { "name": "Get profile", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/profile" } },
+        { "name": "List applications", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/applications?page=0&size=20&sort=applicationDate&direction=desc" } },
+        { "name": "Create application", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"company\": \"Example Labs\",\n  \"role\": \"Frontend Developer\",\n  \"jobType\": \"Full Time\",\n  \"location\": \"Remote\",\n  \"applicationDate\": \"2026-10-08\",\n  \"jobUrl\": \"https://jobs.example.test/123\",\n  \"salary\": \"Negotiable\",\n          \"requiredSkills\": [\"React\", \"JavaScript\"],\n  \"relevantSkills\": [\"React\", \"CSS\"],\n  \"resumeVersion\": \"Frontend-2026.pdf\",\n  \"status\": \"Applied\",\n  \"rejectionReason\": \"Unknown\",\n  \"notes\": \"Applied from careers page\"\n}" }, "url": "{{baseUrl}}/applications" } }
+      ]
+    },
+    {
+      "name": "Interviews and analytics",
+      "item": [
+        { "name": "List upcoming interviews", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/interviews?filter=upcoming" } },
+        { "name": "Create interview", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"company\": \"Example Labs\",\n  \"role\": \"Frontend Developer\",\n  \"date\": \"2026-10-20\",\n  \"time\": \"10:30\",\n  \"round\": \"Technical\",\n  \"mode\": \"Online\",\n  \"interviewLink\": \"https://meet.example.test/room\",\n  \"status\": \"Upcoming\",\n  \"notes\": \"Review component design\"\n}" }, "url": "{{baseUrl}}/interviews" } },
+        { "name": "Dashboard", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/dashboard" } },
+        { "name": "Career analysis", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/career/analysis" } }
+      ]
+    },
+    {
+      "name": "Resumes and administration",
+      "item": [
+        { "name": "List resumes", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/resumes" } },
+        { "name": "Upload PDF resume", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "body": { "mode": "formdata", "formdata": [{ "key": "file", "type": "file", "src": "" }] }, "url": "{{baseUrl}}/resumes" } },
+        { "name": "Admin stats (ADMIN token required)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/admin/stats" } }
+      ]
+    }
+  ]
+}
