@@ -2,38 +2,28 @@
 
 Java 17 / Spring Boot 4.0.3 REST API for the CareerHub Vite frontend. API responses use `{ "success": true, "message": "...", "data": ... }`; DTO property names follow the UI fields (`fullName`, `company`, `role`, `applicationDate`, `resumeVersion`, `interviewLink`, etc.). For the shortest startup instructions, see the repository [README](../README.md).
 
-## Prerequisites and run
+## One-time Windows setup
 
-- JDK 17 and Maven 3.9+
-- MySQL 8.0+, create the database with `mysql -u root -p < db\setup.sql` from this directory
-- Configure secrets/settings below in the process environment, then run `mvn spring-boot:run` from `backend`.
-- Backend listens on `http://localhost:8081` by default; Swagger UI is `/swagger-ui.html`; health check is `/actuator/health`. Port 8080 is occupied by the Oracle TNS Listener on this computer. Change `SERVER_PORT` if needed.
-- Ensure `JAVA_HOME` points to JDK 17 before invoking Maven (the build targets Java 17).
+Requirements: Java 17, Maven 3.9+, and MySQL 8. The backend reads local settings from `backend\.env`; Spring imports that file as properties. `.env` is ignored by Git. Keep credentials and JWT secrets out of source control.
 
-PowerShell setup (choose your own values; never put secrets in source control):
+1. Set the Windows user `JAVA_HOME` to `C:\Program Files\Eclipse Adoptium\jdk-17.0.17.10-hotspot` and ensure `%JAVA_HOME%\bin` is on the user `Path`. Ensure the installed Maven `bin` directory is also on `Path`. Open a new Command Prompt after changing environment variables. (On this computer Maven and the JDK 17 bin directory are already on Path; only `JAVA_HOME` needed correction.)
+2. Ensure the `MySQL80` service is running. Create the `careerhub` database if needed with `mysql -u root -p < db\setup.sql`. This script does not alter or delete existing data. The MySQL login must already have access to that database.
+3. Edit the local `backend\.env` once and replace the `DB_PASSWORD` placeholder with the current password for `careerhub_app`. Do not put quotes around the value. The current local file still has a placeholder, so MySQL authentication will fail until you replace it. A locally generated random `APP_JWT_SECRET` is already present; keep it private and do not change it unless intentionally invalidating active login tokens.
 
-```powershell
-$env:DB_URL='jdbc:mysql://localhost:3306/careerhub?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC'
-$env:DB_USERNAME='careerhub_app'
-$env:DB_PASSWORD='<your-local-mysql-password>'
-$env:APP_JWT_SECRET='<random-secret-at-least-32-characters>'
-mvn spring-boot:run
-```
-
-Windows Command Prompt setup (replace the example password values with your own; the MySQL password must match the account created in `..\README.md`):
+After setup, open a new **Command Prompt** and run:
 
 ```cmd
 cd /d C:\CareerHub\backend
-set "JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-17.0.17.10-hotspot"
-set "PATH=%JAVA_HOME%\bin;%PATH%"
-set "DB_URL=jdbc:mysql://localhost:3306/careerhub?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
-set "DB_USERNAME=careerhub_app"
-set "DB_PASSWORD=your-own-mysql-password"
-set "APP_JWT_SECRET=replace-with-a-random-secret-at-least-32-characters-long"
 mvn spring-boot:run
 ```
 
-The environment variables above apply only to the current Command Prompt window. The database setup script creates the database, not a MySQL login; create `careerhub_app` and grant it access as shown in `..\README.md`. Never commit real credentials or secrets.
+This is Maven's standard Spring Boot run goal and uses the installed Maven executable. Run it from the backend directory so Spring can load `backend\.env`.
+
+The backend listens on `http://localhost:8081` by default; Swagger UI is `/swagger-ui.html`; health check is `/actuator/health`. Port 8080 is occupied by the Oracle TNS Listener on this computer. Change `SERVER_PORT` in the local `.env` if needed.
+
+### Local configuration file
+
+The ignored `.env` file contains `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, and `APP_JWT_SECRET`. Use `careerhub_app` and the existing `careerhub` database; do not switch database names to work around connection errors. If `.env` is missing, copy `.env.example` to `.env`, set the database password, and generate a private JWT secret of at least 32 characters. Never commit `.env`.
 
 Settings: `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `DDL_AUTO` (default `update`; production: `validate`), `SERVER_PORT` (default `8081`), `APP_JWT_SECRET` (required, 32+ characters), `JWT_EXPIRATION_MS`, `UPLOAD_DIRECTORY`, `UPLOAD_MAX_BYTES`, `UPLOAD_MAX_SIZE`. CORS allows `http://localhost:5173`.
 
