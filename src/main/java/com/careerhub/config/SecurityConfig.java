@@ -1,5 +1,6 @@
 package com.careerhub.config;
 import com.careerhub.security.JwtAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,10 +12,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
 public class SecurityConfig {
+ @Value("${app.cors.allowed-origins:http://localhost:5173}")
+ private String allowedOriginsRaw;
+
  @Bean PasswordEncoder passwordEncoder(){return new BCryptPasswordEncoder();}
  @Bean UserDetailsService noPasswordAuthentication(){return username->{throw new UsernameNotFoundException("Bearer token authentication is required");};}
  @Bean SecurityFilterChain filterChain(HttpSecurity http,JwtAuthenticationFilter jwtFilter)throws Exception{
@@ -30,7 +36,20 @@ public class SecurityConfig {
      .addFilterBefore(jwtFilter,UsernamePasswordAuthenticationFilter.class).build();
  }
  @Bean CorsConfigurationSource corsConfigurationSource(){
-   CorsConfiguration c=new CorsConfiguration();c.setAllowedOrigins(List.of("http://localhost:5173"));c.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));c.setAllowedHeaders(List.of("Authorization","Content-Type","Accept"));c.setExposedHeaders(List.of("Authorization"));c.setAllowCredentials(true);
-   UrlBasedCorsConfigurationSource source=new UrlBasedCorsConfigurationSource();source.registerCorsConfiguration("/**",c);return source;
+   List<String> origins = new ArrayList<>();
+   Arrays.stream(allowedOriginsRaw.split(","))
+     .map(String::trim)
+     .filter(s -> !s.isEmpty())
+     .forEach(origins::add);
+   CorsConfiguration c=new CorsConfiguration();
+   c.setAllowedOrigins(origins);
+   c.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
+   c.setAllowedHeaders(List.of("Authorization","Content-Type","Accept"));
+   c.setExposedHeaders(List.of("Authorization"));
+   c.setAllowCredentials(true);
+   UrlBasedCorsConfigurationSource source=new UrlBasedCorsConfigurationSource();
+   source.registerCorsConfiguration("/**",c);
+   return source;
  }
 }
+
