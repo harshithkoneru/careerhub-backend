@@ -3,6 +3,7 @@ import com.careerhub.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.security.config.Customizer;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -25,7 +26,8 @@ public class SecurityConfig {
  @Bean UserDetailsService noPasswordAuthentication(){return username->{throw new UsernameNotFoundException("Bearer token authentication is required");};}
  @Bean SecurityFilterChain filterChain(HttpSecurity http,JwtAuthenticationFilter jwtFilter)throws Exception{
    return http.csrf(csrf->csrf.disable()).cors(Customizer.withDefaults()).sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-     .authorizeHttpRequests(a->a.requestMatchers("/api/auth/**","/actuator/health","/swagger-ui/**","/v3/api-docs/**").permitAll()
+     .authorizeHttpRequests(a->a.requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
+       .requestMatchers("/api/auth/**","/actuator/health","/swagger-ui/**","/v3/api-docs/**").permitAll()
        .requestMatchers("/api/admin/**").hasRole("ADMIN")
        .requestMatchers("/api/**").hasAnyRole("USER","ADMIN").anyRequest().authenticated())
      .exceptionHandling(e->e.authenticationEntryPoint((request,response,exception)->{
@@ -52,4 +54,3 @@ public class SecurityConfig {
    return source;
  }
 }
-

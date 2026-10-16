@@ -25,7 +25,17 @@ The backend listens on `http://localhost:8081` by default; Swagger UI is `/swagg
 
 The ignored `.env` file contains `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, and `APP_JWT_SECRET`. Use `careerhub_app` and the existing `careerhub` database; do not switch database names to work around connection errors. If `.env` is missing, copy `.env.example` to `.env`, set the database password, and generate a private JWT secret of at least 32 characters. Never commit `.env`.
 
-Settings: `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `DDL_AUTO` (default `update`; production: `validate`), `SERVER_PORT` (default `8081`), `APP_JWT_SECRET` (required, 32+ characters), `JWT_EXPIRATION_MS`, `UPLOAD_DIRECTORY`, `UPLOAD_MAX_BYTES`, `UPLOAD_MAX_SIZE`. CORS allows `http://localhost:5173`.
+Settings: `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `DDL_AUTO` (default `update`; production: `validate`), `SERVER_PORT` (default `8081`), `APP_JWT_SECRET` (required, 32+ characters), `JWT_EXPIRATION_MS`, `UPLOAD_DIRECTORY`, `UPLOAD_MAX_BYTES`, `UPLOAD_MAX_SIZE`, and `CORS_ALLOWED_ORIGINS`. CORS defaults to `http://localhost:5173` and `https://careerhub-frontend-zveu.vercel.app`.
+
+### Render and Aiven deployment settings
+
+In the Render backend service, set `DB_URL` to a JDBC URL in this form, using the current Aiven host and port and the `careerhub` database:
+
+```text
+jdbc:mysql://<aiven-host>:<port>/careerhub?sslMode=REQUIRED
+```
+
+Do not use the provider-style `mysql://` URL. Set `DB_USERNAME` and `DB_PASSWORD` to the current Aiven credentials in Render's environment settings; never put credentials in source control or the JDBC URL. Set `APP_JWT_SECRET` to a private value of at least 32 characters and `CORS_ALLOWED_ORIGINS` to `https://careerhub-frontend-zveu.vercel.app` (add `http://localhost:5173` only if local development needs to call this service). The Dockerfile uses Render's `PORT` environment variable and defaults to port `10000`.
 
 Optional dev accounts are seeded only when email **and** password environment variables are explicitly provided. Passwords must be at least 12 characters:
 `APP_SEED_ADMIN_EMAIL`, `APP_SEED_ADMIN_PASSWORD`, optionally `APP_SEED_ADMIN_NAME`; `APP_SEED_USER_EMAIL`, `APP_SEED_USER_PASSWORD`, optionally `APP_SEED_USER_NAME`. The seeder never creates fixed default credentials. Keep uploads outside the web root and back them up separately from MySQL.
